@@ -10,21 +10,24 @@ class remind {
       .slice(2, this.splitInputBySpaces.length)
       .join(" ");
     this.currentDate = new Date();
+    this.remindOn = this.calculateRemiderDate(this.splitInputBySpaces[1]);
+    this.msBeforeReminderIsTriggered = this.remindOn - Date.now();
   }
   entryPoint() {
-    const remindOn = this.calculateRemiderDate(this.splitInputBySpaces[1]);
-
-    console.log(remindOn);
-
     const reminder = new Reminder({
       user: this.message.author,
       reminderText: this.reminderText,
-      remindOn: remindOn,
+      remindOn: this.remindOn,
     });
 
-    reminder.save().then(() => {
+    if (this.msBeforeReminderIsTriggered < 3600000) {
+      this.addReminderToQueue(this.message.author, this.reminderText);
       this.message.channel.send("You got it Boss!");
-    });
+    } else {
+      reminder.save().then(() => {
+        this.message.channel.send("You got it Boss!");
+      });
+    }
   }
 
   calculateRemiderDate(timeInput) {
@@ -37,7 +40,7 @@ class remind {
     // Find time type
     switch (timePeriodType) {
       case "m":
-        return;
+        return this.addMinutesToCurrentDate(timePeriodAmount);
         break;
       case "h":
         return this.addHoursToCurrentDate(timePeriodAmount);
@@ -60,6 +63,11 @@ class remind {
 
   addDaysToCurrentDate(days) {
     return this.currentDate.getTime() + days * 24 * 60 * 60 * 1000;
+  }
+  addReminderToQueue(user, reminderText) {
+    setTimeout(() => {
+      this.message.channel.send(`${user} ${reminderText}`);
+    }, this.msBeforeReminderIsTriggered);
   }
 }
 
