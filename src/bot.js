@@ -1,7 +1,7 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const worldClock = require("./functionalities/worldClock");
-const remind = require("./functionalities/remind");
+const Remind = require("./functionalities/remind");
 
 // DATABASE
 const dbURI =
@@ -31,6 +31,7 @@ client.on("message", (message) => {
   }
 
   if (command === "!remind") {
-    remind.entryPoint(message);
+    const remind = new Remind(message);
+    remind.entryPoint();
   }
 });

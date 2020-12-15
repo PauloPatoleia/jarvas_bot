@@ -1,36 +1,33 @@
 // Dependencies
 const Reminder = require("../models/reminder");
-const {
-  addHoursToCurrentDate,
-  addDaysToCurrentDate,
-  addMinutesToCurrentDate,
-} = require("../methods/calculateReminderOnDate");
 
 // Object
-const remind = {
-  entryPoint: function (message) {
-    let splitInputBySpaces = message.content.split(" ");
-
-    const reminderText = splitInputBySpaces
-      .slice(2, splitInputBySpaces.length)
+class remind {
+  constructor(message) {
+    this.message = message;
+    this.splitInputBySpaces = message.content.split(" ");
+    this.reminderText = this.splitInputBySpaces
+      .slice(2, this.splitInputBySpaces.length)
       .join(" ");
-
-    const remindOn = this.calculateRemiderDate(splitInputBySpaces[1]);
+    this.currentDate = new Date();
+  }
+  entryPoint() {
+    const remindOn = this.calculateRemiderDate(this.splitInputBySpaces[1]);
 
     console.log(remindOn);
 
     const reminder = new Reminder({
-      user: message.author,
-      reminderText: reminderText,
+      user: this.message.author,
+      reminderText: this.reminderText,
       remindOn: remindOn,
     });
 
     reminder.save().then(() => {
-      message.channel.send("You got it Boss!");
+      this.message.channel.send("You got it Boss!");
     });
-  },
+  }
 
-  calculateRemiderDate: function (timeInput) {
+  calculateRemiderDate(timeInput) {
     // Extract letter argument from input
     let timePeriodType = timeInput
       .split("")
@@ -51,22 +48,19 @@ const remind = {
       default:
         return this.addHoursToCurrentDate(timePeriodAmount);
     }
-  },
+  }
 
-  addMinutesToCurrentDate: (minutes) => {
-    let currentDate = new Date();
-    return currentDate.getTime() + minutes * 60 * 1000;
-  },
+  addMinutesToCurrentDate(minutes) {
+    return this.currentDate.getTime() + minutes * 60 * 1000;
+  }
 
-  addHoursToCurrentDate: (hours) => {
-    let currentDate = new Date();
-    return currentDate.getTime() + hours * 60 * 60 * 1000;
-  },
+  addHoursToCurrentDate(hours) {
+    return this.currentDate.getTime() + hours * 60 * 60 * 1000;
+  }
 
-  addDaysToCurrentDate: (days) => {
-    let currentDate = new Date();
-    return currentDate.getTime() + days * 24 * 60 * 60 * 1000;
-  },
-};
+  addDaysToCurrentDate(days) {
+    return this.currentDate.getTime() + days * 24 * 60 * 60 * 1000;
+  }
+}
 
 module.exports = remind;
