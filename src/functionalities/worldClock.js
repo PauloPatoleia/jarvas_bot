@@ -12,6 +12,10 @@ const worldClock = {
     message.channel.send(
       `Chicago: ${moment().tz("America/Chicago").format("h:mm:ss a")}`
     );
+
+    message.channel.send(
+      `San Antonio: ${moment().tz("America/Chicago").format("h:mm:ss a")}`
+    );
   },
 };
 
